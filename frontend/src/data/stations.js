@@ -12,7 +12,7 @@
  *   201–300 → Very Poor
  *   300+   → Severe
  */
-
+/*
 const stations = [
   {
     id: 1,
@@ -129,3 +129,4 @@ const stations = [
 ];
 
 export default stations;
+ */

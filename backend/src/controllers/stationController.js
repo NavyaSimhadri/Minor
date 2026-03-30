@@ -9,43 +9,39 @@
  * FUTURE IMPLEMENTATION: Add caching (Redis) for station data.
  */
 
-const stations           = require('../data/mockStations');
-const { simulateInterventions } = require('../services/simulationService');
+//const stations           = require('../data/mockStations');
+const { loadAllStations, simulateInterventions } = require('../services/simulationService');
 
 // ─── GET /stations ────────────────────────────────────────────────────────
 /**
  * Returns the full list of 7 mock AQI monitoring stations.
  * TODO: Replace mock dataset with CSV / database later.
  */
-const getAllStations = (req, res) => {
+const getAllStations = async (req, res) => {
   try {
+    let stations = await loadAllStations();
+
     const { zone, minAqi, maxAqi } = req.query;
 
-    let result = [...stations];
-
-    // Optional zone filter
     if (zone) {
-      result = result.filter((s) =>
+      stations = stations.filter(s =>
         s.zone_type.toLowerCase() === zone.toLowerCase()
       );
     }
 
-    // Optional AQI range filter
-    if (minAqi) result = result.filter((s) => s.aqi >= parseInt(minAqi, 10));
-    if (maxAqi) result = result.filter((s) => s.aqi <= parseInt(maxAqi, 10));
+    if (minAqi) stations = stations.filter(s => s.aqi >= minAqi);
+    if (maxAqi) stations = stations.filter(s => s.aqi <= maxAqi);
 
     res.json({
       success: true,
-      count: result.length,
-      // TODO: Add metadata (timestamp, data source) when real data available.
-      dataSource: 'mock',   // TODO: Change to 'live' when connected
-      stations: result,
+      stations,
+      dataSource: 'csv',
     });
+
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
-
 // ─── GET /stations/:id ────────────────────────────────────────────────────
 /**
  * Returns a single station by ID.
@@ -72,7 +68,7 @@ const getStationById = (req, res) => {
  * TODO: Connect ML service (Python FastAPI) for real predictions.
  * ML INTEGRATION POINT: call Python service here.
  */
-const simulate = (req, res) => {
+const simulate = async (req, res) => {
   try {
     const { stationId, intervention, interventions } = req.body;
 
@@ -96,7 +92,7 @@ const simulate = (req, res) => {
     // TODO: Replace with ML model prediction.
     // TODO: Connect ML service – replace below with axios call to Python API.
     const selectedInterventions = interventions ?? intervention;
-    const simResult = simulateInterventions(station.aqi, selectedInterventions);
+    const simResult = await simulateInterventions(station, selectedInterventions);
 
     res.json({
       success: true,

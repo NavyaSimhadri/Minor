@@ -82,37 +82,39 @@
 #     # return {"predicted_aqi": round(float(predicted_aqi), 2)}
 #     return {"predicted_aqi": None, "status": "not-implemented"}
 
+from fastapi import FastAPI
+from pydantic import BaseModel
+import joblib
+import numpy as np
 
-def predict_aqi(features: dict) -> float:
-    """
-    Placeholder prediction function.
+app = FastAPI()
 
-    TODO: Replace with actual ML model inference.
-    TODO: Load model from models/aqi_model.pkl
-    TODO: Feature engineering before prediction
+# Load trained model
+model = joblib.load("models/aqi_model.pkl")
 
-    Args:
-        features: dict with keys pm25, pm10, no2, so2, co, o3, humidity, zone_type
-    Returns:
-        Predicted AQI value (float) — currently raises NotImplementedError
-    """
-    # TODO: Replace with ML model prediction.
-    raise NotImplementedError(
-        "ML model not yet trained. "
-        "Run train_model.py first, then implement this function."
-    )
+# Input schema
+class Input(BaseModel):
+    pm25: float
+    pm10: float
+    no2: float
+    so2: float
+    co: float
+    o3: float
 
+# Prediction endpoint
+@app.post("/predict")
+def predict(data: Input):
+    features = np.array([[
+        data.pm25,
+        data.pm10,
+        data.no2,
+        data.so2,
+        data.co,
+        data.o3
+    ]])
 
-if __name__ == "__main__":
-    print("=" * 55)
-    print("  Digital Twin AQI – ML Prediction Service")
-    print("  STATUS: PLACEHOLDER – No ML logic yet.")
-    print("=" * 55)
-    print()
-    print("  TODO: Load Random Forest model")
-    print("  TODO: Define FastAPI prediction endpoint")
-    print("  TODO: Connect to Node.js backend")
-    print()
-    print("  To start the service (after implementation):")
-    print("  uvicorn predict:app --host 0.0.0.0 --port 8000")
-    # TODO: uvicorn.run(app, host="0.0.0.0", port=8000)
+    prediction = model.predict(features)[0]
+
+    return {
+        "predicted_aqi": round(float(prediction), 2)
+    }
