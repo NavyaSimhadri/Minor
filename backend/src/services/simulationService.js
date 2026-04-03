@@ -24,6 +24,27 @@ const csv = require('csv-parser');
 
 const DATA_DIR = path.join(__dirname, '../data/aqi');
 
+const safe = (v) => (isNaN(v) ? 0 : Number(v));
+
+// ─── Hyderabad Station Coordinates ────────────────────────────────────────
+const STATION_COORDINATES = {
+  'Bollaram Industrial Area': { lat: 17.5304, lng: 78.2678 },
+  'Central University': { lat: 17.4599, lng: 78.3320 },
+  'ECIL KAPRA': { lat: 17.4800, lng: 78.5700 },
+  'ICRISAT Patancheru': { lat: 17.5115, lng: 78.2751 },
+  'IDA Pashamylaram': { lat: 17.5303, lng: 78.1820 },
+  'IITH': { lat: 17.5931, lng: 78.1236 },
+  'KHAIRTHABAD': { lat: 17.4128, lng: 78.4580 },
+  'KOKAPET': { lat: 17.3954, lng: 78.3346 },
+  'KOMPALLY': { lat: 17.5333, lng: 78.4833 },
+  'MALAKPET': { lat: 17.3775, lng: 78.5026 },
+  'NACHARAM': { lat: 17.4308, lng: 78.5595 },
+  'SYMPHONY': { lat: 17.4333, lng: 78.3833 },
+  'ECIL': { lat: 17.4640, lng: 78.5789 },
+  'Sanathnagar': { lat: 17.4562, lng: 78.4435 },
+  'Zoo Park': { lat: 17.3511, lng: 78.4497 },
+};
+
 const REDUCTION_FACTORS = {
   'Green Belt':        0.92,   // 8% AQI reduction
   'Dust Control':      0.88,   // 12% AQI reduction
@@ -122,32 +143,80 @@ function loadAllStations() {
   return new Promise((resolve, reject) => {
     const results = [];
     const files = fs.readdirSync(DATA_DIR);
-
+    
     let pending = files.length;
 
     files.forEach(file => {
       fs.createReadStream(path.join(DATA_DIR, file))
         .pipe(csv())
         .on('data', (row) => {
+          const zones = ['Residential', 'Industrial', 'Commercial'];
+          const stationName = row.station || "Station";
+          const coords = STATION_COORDINATES[stationName] || {
+            lat: 17.3 + Math.random() * 0.3,
+            lng: 78.3 + Math.random() * 0.3
+          };
+
           results.push({
             id: results.length + 1,
-            name: row.station || "Station",
-            aqi: Number(row.FINAL_AQI),
-            pm25: Number(row['PM2.5']),
-            pm10: Number(row['PM10']),
-            no2: Number(row['NO2']),
-            so2: Number(row['SO2']),
-            co: Number(row['CO']),
-            o3: Number(row['O3']),
-            humidity: 50,
-            zone_type: "Urban",
-            latitude: 17.3 + Math.random() * 0.3,
-            longitude: 78.3 + Math.random() * 0.3,
+            name: stationName,
+            pm25: safe(row.pm25),
+            pm10: safe(row.pm10),
+            no2: safe(row.no2),
+            so2: safe(row.so2),
+            co: safe(row.co),
+            o3: safe(row.o3),
+            humidity: safe(row.humidity || 50),
+            aqi: safe(row.FINAL_AQI),   
+            zone_type: zones[Math.floor(Math.random() * zones.length)],
+            latitude: coords.lat,
+            longitude: coords.lng,
+            
           });
         })
         .on('end', () => {
           pending--;
-          if (pending === 0) resolve(results);
+          if (pending === 0) {
+  // 🔥 GROUP BY STATION NAME
+  const stationMap = {};
+
+  results.forEach((row) => {
+    const key = row.name;
+
+    if (!stationMap[key]) {
+      stationMap[key] = { ...row, count: 1 };
+    } else {
+      const s = stationMap[key];
+      s.aqi += row.aqi;
+      s.pm25 += row.pm25;
+      s.pm10 += row.pm10;
+      s.no2 += row.no2;
+      s.so2 += row.so2;
+      s.co += row.co;
+      s.o3 += row.o3;
+      s.count++;
+    }
+  });
+
+  // 🔥 CREATE FINAL AVERAGED DATA
+  const finalStations = Object.values(stationMap).map((s, i) => ({
+    id: i + 1,
+    name: s.name,
+    aqi: s.aqi / s.count,
+    pm25: s.pm25 / s.count,
+    pm10: s.pm10 / s.count,
+    no2: s.no2 / s.count,
+    so2: s.so2 / s.count,
+    co: s.co / s.count,
+    o3: s.o3 / s.count,
+    humidity: s.humidity,
+    zone_type: s.zone_type,
+    latitude: s.latitude,
+    longitude: s.longitude,
+  }));
+
+  resolve(finalStations); // ✅ IMPORTANT
+}
         })
         .on('error', reject);
     });

@@ -72,7 +72,6 @@ const simulate = async (req, res) => {
   try {
     const { stationId, intervention, interventions } = req.body;
 
-    // Input Validation
     if (!stationId || (!intervention && !interventions)) {
       return res.status(400).json({
         success: false,
@@ -80,7 +79,13 @@ const simulate = async (req, res) => {
       });
     }
 
-    const station = stations.find((s) => s.id === parseInt(stationId, 10));
+    // ✅ LOAD REAL DATA
+    const allStations = await loadAllStations();
+
+    const station = allStations.find(
+      (s) => s.id === parseInt(stationId, 10)
+    );
+
     if (!station) {
       return res.status(404).json({
         success: false,
@@ -88,21 +93,22 @@ const simulate = async (req, res) => {
       });
     }
 
-    // ── DUMMY SIMULATION ──────────────────────────────────────────────────
-    // TODO: Replace with ML model prediction.
-    // TODO: Connect ML service – replace below with axios call to Python API.
     const selectedInterventions = interventions ?? intervention;
-    const simResult = await simulateInterventions(station, selectedInterventions);
+
+    // ✅ ML CALL
+    const simResult = await simulateInterventions(
+      station,
+      selectedInterventions
+    );
 
     res.json({
       success: true,
-      dataSource: 'mock-simulation',   // TODO: Change to 'ml-prediction' when ready
-      note: 'DUMMY CALCULATION – prototype only. Replace with ML model.',
+      dataSource: 'ml-prediction',
       input: {
         stationId: station.id,
         stationName: station.name,
         currentAQI: station.aqi,
-        interventions: simResult.appliedInterventions,
+        interventions: selectedInterventions,
       },
       result: simResult,
     });
@@ -111,5 +117,4 @@ const simulate = async (req, res) => {
     res.status(400).json({ success: false, error: err.message });
   }
 };
-
 module.exports = { getAllStations, getStationById, simulate };
