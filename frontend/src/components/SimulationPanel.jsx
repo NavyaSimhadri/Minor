@@ -14,9 +14,10 @@
  *       the Python prediction service once the model is trained.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { INTERVENTION_OPTIONS, getAQIColor } from '../utils/aqiUtils';
 import { postSimulate } from '../services/api';
+import RecommendationPanel from './RecommendationPanel';
 // Stations are passed as a prop from Dashboard (fetched from backend).
 
 // ─── Result Block ─────────────────────────────────────────────────────────
@@ -128,11 +129,18 @@ const ResultBlock = ({ result, stationName, interventions }) => {
 
 // ─── SimulationPanel Component ────────────────────────────────────────────
 // Receives stations array as prop from Dashboard (fetched from backend).
-const SimulationPanel = ({ stations = [] }) => {
+const SimulationPanel = ({ stations = [], selectedStation: selectedStationProp = null }) => {
   const [selectedStationId, setSelectedStationId]   = useState('');
   const [selectedInterventions, setSelectedInterventions] = useState([]);
   const [result, setResult] = useState(null);
   const [running, setRunning] = useState(false);
+  const [showRecommendation, setShowRecommendation] = useState(false);
+
+  useEffect(() => {
+    if (selectedStationProp?.id) {
+      setSelectedStationId(String(selectedStationProp.id));
+    }
+  }, [selectedStationProp]);
 
   const selectedStation = stations.find((s) => s.id === parseInt(selectedStationId));
 
@@ -174,9 +182,9 @@ const SimulationPanel = ({ stations = [] }) => {
   };
 
   const interventionDescriptions = {
-    'Green Belt': '🌳 Plant trees & green corridors. Dummy: AQI × 0.92 (−8%)',
-    'Dust Control': '💧 Water sprinklers & road sweeping. Dummy: AQI × 0.88 (−12%)',
-    'Emission Control': '🏭 Restrict industrial emissions. Dummy: AQI × 0.85 (−15%)',
+    'Green Walls / Vertical Gardens': '🌿 Vertical gardens reduce PM2.5 & PM10 with vegetation filters. Dummy: AQI × 0.82 (−18%)',
+    'Biofilters (Algae / Moss Systems)': '🧪 Biofilters reduce PM2.5, PM10 and NO2 using algae/moss filtration. Dummy: AQI × 0.70 (−30%)',
+    'Roadside Air Purifiers': '🚗 Roadside purifiers target PM2.5 near traffic corridors. Dummy: AQI × 0.50 (−50%)',
   };
 
   const inputStyle = {
@@ -208,7 +216,7 @@ const SimulationPanel = ({ stations = [] }) => {
       padding: '16px',
     }}>
       {/* Panel Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <h3 style={{ margin: 0, fontSize: '0.95rem', color: '#38bdf8', fontWeight: 700 }}>
             🔬 Intervention Simulator
@@ -230,6 +238,20 @@ const SimulationPanel = ({ stations = [] }) => {
           Demo Mode
         </span>
       </div>
+
+      {selectedStationProp && (
+        <div style={{
+          marginBottom: '14px',
+          background: 'rgba(16,185,129,0.08)',
+          border: '1px solid rgba(16,185,129,0.2)',
+          borderRadius: '8px',
+          padding: '10px',
+          color: '#d1fae5',
+          fontSize: '0.82rem',
+        }}>
+          Selected station: <strong>{selectedStationProp.name}</strong> ({selectedStationProp.zone_type})
+        </div>
+      )}
 
       {/* Station Select */}
       <div style={{ marginBottom: '12px' }}>
@@ -313,7 +335,7 @@ const SimulationPanel = ({ stations = [] }) => {
       )}
 
       {/* Action Buttons */}
-      <div style={{ display: 'flex', gap: '8px' }}>
+      <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         <button
           onClick={handleSimulate}
           disabled={!selectedStation || !selectedInterventions.length || running}
@@ -334,6 +356,26 @@ const SimulationPanel = ({ stations = [] }) => {
         >
           {running ? '⏳ Simulating...' : '▶ Run Simulation'}
         </button>
+        <button
+          onClick={() => setShowRecommendation(true)}
+          disabled={!selectedStation}
+          style={{
+            flex: 1,
+            background: !selectedStation
+              ? 'rgba(167,139,250,0.15)'
+              : 'rgba(167,139,250,0.85)',
+            color: '#0f172a',
+            border: 'none',
+            borderRadius: '6px',
+            padding: '10px',
+            fontWeight: 700,
+            fontSize: '0.85rem',
+            cursor: !selectedStation ? 'not-allowed' : 'pointer',
+            transition: 'background 0.2s',
+          }}
+        >
+          💡 AI Recommendation
+        </button>
         {result && (
           <button
             onClick={handleReset}
@@ -351,6 +393,16 @@ const SimulationPanel = ({ stations = [] }) => {
           </button>
         )}
       </div>
+
+      {/* Recommendation Panel */}
+      {showRecommendation && selectedStation && (
+        <div style={{ marginTop: '16px' }}>
+          <RecommendationPanel
+            selectedStation={selectedStation}
+            onClose={() => setShowRecommendation(false)}
+          />
+        </div>
+      )}
 
       {/* API Error */}
       {apiError && (

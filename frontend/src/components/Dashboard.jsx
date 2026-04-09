@@ -218,9 +218,8 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Simulation Panel */}
         <div style={{ flex: '0 0 calc(40% - 12px)', overflowY: 'auto' }}>
-          <SimulationPanel stations={stations} />
+          <SimulationPanel stations={stations} selectedStation={selectedStation} />
         </div>
       </div>
 
@@ -231,8 +230,11 @@ const Dashboard = () => {
         borderRadius: '10px',
         overflow: 'hidden',
         marginBottom: '12px',
-        maxHeight: '260px',
+        height: 'calc(100vh - 560px)',
+        minHeight: '320px',
+        maxHeight: '70vh',
         overflowY: 'auto',
+        overflowX: 'auto',
       }}>
         <div style={{ padding: '10px 14px', borderBottom: '1px solid rgba(148,163,184,0.1)', display: 'flex', justifyContent: 'space-between' }}>
           <h3 style={{ margin: 0, fontSize: '0.85rem', color: '#94a3b8', fontWeight: 600 }}>
@@ -243,7 +245,7 @@ const Dashboard = () => {
           </span>
         </div>
 
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <table style={{ minWidth: '900px', width: '100%', borderCollapse: 'collapse' }}>
           <thead style={{ position: 'sticky', top: 0, background: '#0f172a', zIndex: 1 }}>
             <tr>
               {['Station', 'Zone', 'AQI', 'Category', 'PM2.5', 'PM10', 'NO₂', 'Humidity'].map((h) => (

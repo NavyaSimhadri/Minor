@@ -19,11 +19,13 @@ const {
   getAllStations,
   getStationById,
   simulate,
+  recommend,
 } = require('../controllers/stationController');
 
 // ── Station Routes ─────────────────────────────────────────────────────────
-router.get('/',          getAllStations);   // GET  /stations
-router.get('/:id',       getStationById);  // GET  /stations/:id
-router.post('/simulate', simulate);        // POST /stations/simulate
+router.get('/',          getAllStations);    // GET  /stations
+router.get('/:id',       getStationById);   // GET  /stations/:id
+router.post('/simulate', simulate);         // POST /stations/simulate
+router.post('/recommend', recommend);       // POST /stations/recommend
 
 module.exports = router;

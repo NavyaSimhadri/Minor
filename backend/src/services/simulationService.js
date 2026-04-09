@@ -46,9 +46,9 @@ const STATION_COORDINATES = {
 };
 
 const REDUCTION_FACTORS = {
-  'Green Belt':        0.92,   // 8% AQI reduction
-  'Dust Control':      0.88,   // 12% AQI reduction
-  'Emission Control':  0.85,   // 15% AQI reduction
+  'Green Walls / Vertical Gardens':         0.82, // 18% AQI reduction
+  'Biofilters (Algae / Moss Systems)':      0.70, // 30% AQI reduction
+  'Roadside Air Purifiers':                 0.50, // 50% AQI reduction
 };
 
 const normalizeInterventions = (interventions) => {
@@ -89,7 +89,7 @@ const validateInterventions = (interventions) => {
  *
  * Dummy combination logic:
  *   Final factor = product of selected intervention factors
- *   Example: ['Green Belt','Dust Control'] => 0.92 * 0.88 = 0.8096
+ *   Example: ['Green Walls / Vertical Gardens','Biofilters (Algae / Moss Systems)'] => 0.82 * 0.70 = 0.574
  *
  * TODO: Replace with ML model prediction.
  */
@@ -97,16 +97,19 @@ const simulateInterventions = async (station, interventions) => {
   let modified = { ...station };
 
   // Apply intervention effects
-  if (interventions.includes('Green Belt')) {
-    modified.pm25 *= 0.9;
+  if (interventions.includes('Green Walls / Vertical Gardens')) {
+    modified.pm25 *= 0.88;
+    modified.pm10 *= 0.80;
   }
 
-  if (interventions.includes('Dust Control')) {
-    modified.pm10 *= 0.85;
+  if (interventions.includes('Biofilters (Algae / Moss Systems)')) {
+    modified.pm25 *= 0.75;
+    modified.pm10 *= 0.75;
+    modified.no2 *= 0.82;
   }
 
-  if (interventions.includes('Emission Control')) {
-    modified.no2 *= 0.8;
+  if (interventions.includes('Roadside Air Purifiers')) {
+    modified.pm25 *= 0.60;
   }
 
   try {

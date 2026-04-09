@@ -11,6 +11,7 @@
 
 //const stations           = require('../data/mockStations');
 const { loadAllStations, simulateInterventions } = require('../services/simulationService');
+const { recommendBestIntervention } = require('../services/recommendationService');
 
 // ─── GET /stations ────────────────────────────────────────────────────────
 /**
@@ -117,4 +118,68 @@ const simulate = async (req, res) => {
     res.status(400).json({ success: false, error: err.message });
   }
 };
-module.exports = { getAllStations, getStationById, simulate };
+
+// ─── POST /stations/recommend ────────────────────────────────────────────
+/**
+ * AI-driven intervention recommendation engine.
+ * 
+ * Steps:
+ *  1. Identifies dominant pollutant
+ *  2. Filters interventions by pollutant + zone
+ *  3. Applies each intervention
+ *  4. Uses ML to predict AQI after intervention
+ *  5. Ranks by effectiveness
+ *
+ * Expected body: { stationId: number }
+ * 
+ * Returns: {
+ *   station: string,
+ *   zone: string,
+ *   currentAQI: number,
+ *   dominantPollutant: string,
+ *   bestIntervention: { intervention, predictedAQI, improvement, cost },
+ *   allInterventions: Array
+ * }
+ */
+const recommend = async (req, res) => {
+  try {
+    const { stationId } = req.body;
+
+    if (!stationId) {
+      return res.status(400).json({
+        success: false,
+        error: 'stationId is required.',
+      });
+    }
+
+    // ✅ LOAD REAL DATA
+    const allStations = await loadAllStations();
+    const station = allStations.find(s => s.id === parseInt(stationId));
+
+    if (!station) {
+      return res.status(404).json({
+        success: false,
+        error: `Station id ${stationId} not found.`,
+      });
+    }
+
+    // ✅ GET RECOMMENDATION
+    const result = await recommendBestIntervention(station);
+
+    res.json({
+      success: true,
+      dataSource: 'ml-recommendation',
+      station: station.name,
+      zone: station.zone_type,
+      currentAQI: station.aqi,
+      dominantPollutant: result.best?.dominantPollutant,
+      bestIntervention: result.best,
+      allInterventions: result.all
+    });
+
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
+};
+
+module.exports = { getAllStations, getStationById, simulate, recommend };

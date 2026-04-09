@@ -94,6 +94,7 @@ pip install -r requirements.txt
 | GET    | `/stations`            | List all 7 mock stations         |
 | GET    | `/stations/:id`        | Get single station by ID         |
 | POST   | `/stations/simulate`   | Run dummy intervention simulation|
+| POST   | `/stations/recommend`  | Get AI intervention recommendation |
 | GET    | `/health`              | Service health check             |
 
 ### POST `/stations/simulate` — Example
@@ -102,7 +103,7 @@ pip install -r requirements.txt
 ```json
 {
   "stationId": 6,
-  "intervention": "Emission Control"
+  "intervention": "Green Walls / Vertical Gardens"
 }
 ```
 
@@ -115,12 +116,12 @@ pip install -r requirements.txt
   "input": {
     "stationName": "Patancheru",
     "currentAQI": 210,
-    "intervention": "Emission Control"
+    "intervention": "Green Walls / Vertical Gardens"
   },
   "result": {
-    "predictedAQI": 179,
-    "improvementPct": 15,
-    "aqiReduction": 31
+    "predictedAQI": 172,
+    "improvementPct": 18,
+    "aqiReduction": 38
   }
 }
 ```
@@ -129,11 +130,11 @@ pip install -r requirements.txt
 
 ## Simulation Logic (Dummy)
 
-| Intervention     | Reduction Factor | AQI Change |
-|------------------|-----------------|------------|
-| Green Belt       | × 0.92          | −8%        |
-| Dust Control     | × 0.88          | −12%       |
-| Emission Control | × 0.85          | −15%       |
+| Intervention                             | Reduction Factor | AQI Change |
+|------------------------------------------|-----------------|------------|
+| Green Walls / Vertical Gardens           | × 0.82          | −18%       |
+| Biofilters (Algae / Moss Systems)        | × 0.70          | −30%       |
+| Roadside Air Purifiers                   | × 0.50          | −50%       |
 
 > **TODO:** Replace with Random Forest ML model prediction.
 

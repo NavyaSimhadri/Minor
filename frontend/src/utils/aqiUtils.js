@@ -68,17 +68,18 @@ export const getCircleRadius = (aqi) => {
  *       to /api/simulate and receive model-predicted AQI.
  *
  * @param {number} aqi         - Current AQI value of the station
- * @param {string} intervention - One of: 'Green Belt', 'Dust Control',
- *                                        'Emission Control'
+ * @param {string} intervention - One of: 'Green Walls / Vertical Gardens',
+ *                                        'Biofilters (Algae / Moss Systems)',
+ *                                        'Roadside Air Purifiers'
  * @returns {{ predictedAQI: number, improvementPct: number }}
  */
 export const simulateIntervention = (aqi, intervention) => {
   // TODO: Replace with ML model prediction.
   let factor = 1;
 
-  if (intervention === 'Green Belt')       factor = 0.92;  // 8% reduction
-  else if (intervention === 'Dust Control')  factor = 0.88;  // 12% reduction
-  else if (intervention === 'Emission Control') factor = 0.85; // 15% reduction
+  if (intervention === 'Green Walls / Vertical Gardens')       factor = 0.82;  // 18% reduction
+  else if (intervention === 'Biofilters (Algae / Moss Systems)')  factor = 0.70;  // 30% reduction
+  else if (intervention === 'Roadside Air Purifiers') factor = 0.50; // 50% reduction
 
   const predictedAQI = Math.round(aqi * factor);
   const improvementPct = Math.round((1 - factor) * 100);
@@ -88,9 +89,9 @@ export const simulateIntervention = (aqi, intervention) => {
 
 // ─── Intervention Options List ────────────────────────────────────────────
 export const INTERVENTION_OPTIONS = [
-  { value: 'Green Belt',        label: 'Green Belt',        reduction: '8%' },
-  { value: 'Dust Control',      label: 'Dust Control',      reduction: '12%' },
-  { value: 'Emission Control',  label: 'Emission Control',  reduction: '15%' },
+  { value: 'Green Walls / Vertical Gardens',               label: 'Vertical Gardens',      reduction: '18%' },
+  { value: 'Biofilters (Algae / Moss Systems)',            label: 'Biofilters',           reduction: '30%' },
+  { value: 'Roadside Air Purifiers',                       label: 'Roadside Air Purifiers', reduction: '50%' },
 ];
 
 // ─── Summary Statistics Helper ────────────────────────────────────────────

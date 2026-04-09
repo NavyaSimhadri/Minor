@@ -1,0 +1,277 @@
+/**
+ * RecommendationPanel.css – AI Recommendation Component Styles
+ * -------------------------------------------------------
+ * Modern, clean UI for intervention recommendations.
+ */
+
+.recommendation-panel {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.recommendation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+  padding-bottom: 12px;
+}
+
+.recommendation-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+.recommendation-message {
+  text-align: center;
+  padding: 40px 20px;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.recommendation-station {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.recommendation-station p {
+  margin: 6px 0;
+}
+
+.btn-recommend,
+.btn-reset {
+  width: 100%;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-top: 12px;
+}
+
+.btn-recommend:hover:not(:disabled),
+.btn-reset:hover {
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.8);
+  transform: translateY(-2px);
+}
+
+.btn-recommend:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.recommendation-results {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.result-section {
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.85;
+  margin-bottom: 10px;
+}
+
+/* Dominant Pollutant */
+.dominant-pollutant {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.pollutant-badge {
+  display: inline-block;
+  background: rgba(255, 215, 0, 0.3);
+  border: 2px solid rgba(255, 215, 0, 0.6);
+  color: #ffd700;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 16px;
+  margin: 8px 0;
+}
+
+.pollutant-value {
+  font-size: 13px;
+  opacity: 0.9;
+  margin: 6px 0 0 0;
+}
+
+/* Best Intervention */
+.best-intervention {
+  background: rgba(34, 197, 94, 0.15);
+  border: 2px solid rgba(34, 197, 94, 0.4);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.intervention-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 8px 0;
+}
+
+.intervention-card.featured {
+  background: rgba(34, 197, 94, 0.25);
+  border: 2px solid rgba(34, 197, 94, 0.5);
+}
+
+.intervention-card h4 {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin: 6px 0;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.metric:last-child {
+  border-bottom: none;
+}
+
+.metric .label {
+  opacity: 0.8;
+}
+
+.metric .value {
+  font-weight: 600;
+}
+
+.metric.improvement .value.positive {
+  color: #4ade80;
+}
+
+.metric.cost .value {
+  color: #fbbf24;
+}
+
+/* Candidates List */
+.all-interventions {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.candidates-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.intervention-card.candidate {
+  position: relative;
+  padding: 10px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.intervention-card.candidate .rank {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.intervention-card.candidate .name {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  min-height: 30px;
+}
+
+.intervention-card.candidate .aqi,
+.intervention-card.candidate .improvement {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-top: 12px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+  .recommendation-panel {
+    max-height: 500px;
+  }
+
+  .candidates-list {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendation-header h3 {
+    font-size: 16px;
+  }
+}

@@ -82,3 +82,33 @@ export const postSimulate = async (stationId, interventions) => {
     dataSource:     data.dataSource,
   };
 };
+
+// ─── Recommendation ────────────────────────────────────────────────────────
+
+/**
+ * POST a recommendation request to the backend.
+ * Engine automatically selects best intervention based on:
+ *  1. Dominant pollutant (primary filter)
+ *  2. Zone type (secondary filter)
+ *  3. ML prediction of AQI after intervention
+ *
+ * @param {number} stationId
+ * @returns {Promise} { station, zone, currentAQI, dominantPollutant, bestIntervention, allInterventions }
+ */
+export const getRecommendation = async (stationId) => {
+  const res = await fetch(`${BASE}/stations/recommend`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ stationId }),
+  });
+  const data = await handleResponse(res);
+  return {
+    station:             data.station,
+    zone:                data.zone,
+    currentAQI:          data.currentAQI,
+    dominantPollutant:   data.dominantPollutant,
+    bestIntervention:    data.bestIntervention,
+    allInterventions:    data.allInterventions,
+    dataSource:          data.dataSource,
+  };
+};
